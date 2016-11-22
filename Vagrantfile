@@ -43,7 +43,7 @@ Vagrant.configure(2) do |config|
           vb.cpus = node_values['cpu']
           # Можно перезаписать название VM в Vbox GUI
           vb.name = node_name + node_values['domain_name']
-          # Добавление жесткого диска, если такой указан в конфигурации
+	  # Добавление жесткого диска, если такой указан в конфигурации
           if (node_values['hdd2_size'] != "")
             hdd2_name = node_values['vbox_vms_path'] + "/" + vb.name + "/" + node_name + "_hdd2.vdi"
             # Не создавать диск, если он уже существует
@@ -54,6 +54,7 @@ Vagrant.configure(2) do |config|
             vb.customize ["storageattach", :id, "--storagectl", "SATAController", "--port", 1, "--device", 0, "--type", "hdd", "--medium", hdd2_name]
           end # if (!node_values['hdd2_size']
         end # config.vm.provider :virtualbox
+	config.vm.provision "file", source: ".ssh/id_rsa.pub", destination: "~/.ssh/authorized_keys"
         if (node_values['init_script'] != "")
           config.vm.provision "shell", path: node_values['init_script']
         end
