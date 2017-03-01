@@ -1,0 +1,12 @@
+{
+  "nodes": {
+    "node1": {
+      "box_name": "ubuntu/trusty64",
+      "domain_name": ".sample.com",
+      "memory": 512,
+      "cpu": 1,
+      "ip_host_only_adapter": "",
+      "host_ssh_port": 2223
+    }
+  }
+}

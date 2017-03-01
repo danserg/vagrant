@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# read vm configurations from JSON files
+nodes_config = (JSON.parse(File.read("config.json")))['nodes']
+
+
+Vagrant.configure(2) do |config|
+    nodes_config.each do |node|
+      node_name   = node[0] # name of node
+      node_values = node[1] # content of node
+      config.vm.define node_name do |config|
+        # Поднять машину из образа "ubuntu/trusty64"
+        config.vm.box = node_values['box_name']
+        # Настройка SSH доступа
+        config.vm.network :forwarded_port, guest: 22, host: node_values['host_ssh_port'], id: "ssh"
+        # Отключить дефолтную шару
+        config.vm.synced_folder ".", "/vagrant", disabled: true
+        # Hostname который будет присвоен VM (самой ОС)
+        config.vm.hostname = node_name + node_values['domain_name']
+        # Добавлять или нет врорую серевую карту
+        if (node_values['ip_host_only_adapter'] != "")
+          config.vm.network :private_network, ip: node_values['ip_host_only_adapter']
+        end
+        config.vm.provider :virtualbox do |vb|
+          # Размер RAM памяти
+          vb.memory = node_values['memory']
+          # set the number of cpus
+          vb.cpus = node_values['cpu']
+          # Можно перезаписать название VM в Vbox GUI
+          vb.name = node_name + node_values['domain_name']
+        end # config.vm.provider :virtualbox
+	  config.vm.provision "file", source: ".ssh/id_rsa.pub", destination: "~/.ssh/authorized_keys"
+      end # config.vm.define node_name
+    end # nodes_config.each
+end  # Vagrant.configure(2)
